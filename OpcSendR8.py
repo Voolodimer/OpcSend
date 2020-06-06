@@ -1,15 +1,13 @@
 import OpenOPC
 import time
 import requests
-import telebot
-from telebot import apihelper
 
-apihelper.proxy = {'http':'127.0.0.1:9050'}
 ###################################################
 react_temp = int(input("Введите температуру слоя реактора (целое число): "))
 for_react_temp = int(input("Введите температуру слоя форреактора (целое число): "))
 prs = float(input("введите давление свд (н-р 20.10): "))
-tmp_lim = int(input("Введите допустимый предел температур (+- x градусов, целое число): "))
+tmp_lim = int(input("Введите допустимое отклонение температур (+- x градусов, целое число): "))
+prs_lim = float(input("введите допустимое отклонение давления свд (н-р 0.05): "))
 ###################################################
 def send_telegram(text: str):
     '''Функция send-telegram отправляет в группу телеграмм 
@@ -96,7 +94,19 @@ while True:
                 send_telegram("Слой ФР охладился до {0:.2f} С".format(val[3][1]))
             except:
                 print("Включите VPN (test 4)")
-
+        ############################################################
+        # Проверка давления СВД
+        if int(val[4][1]) > (prs + prs_lim):
+            try:
+                send_telegram("Давление поднялось до {0:.2f} ати".format(val[4][1]))
+            except:
+                print("Включите VPN (test 5)")
+        if int(val[4][1]) < (prs - prs_lim):
+            try:
+                send_telegram("Давление опустилось до {0:.2f} ати".format(val[4][1]))
+            except:
+                print("Включите VPN (test 6)")
+        #print(time())
         print(tagsValue[0] + ' ' + str(val[0][1]))
         print(tagsValue[1] + ' ' + str(val[1][1]))
         print(tagsValue[2] + ' ' + str(val[2][1]))
