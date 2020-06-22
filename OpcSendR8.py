@@ -2,23 +2,54 @@
 import OpenOPC
 import time
 import requests
+import telebot
 
+token = ""
 ###################################################
-try:
-    react_temp = int(input("Введите температуру слоя реактора (целое число): "))
-    r_tmp_lim = int(input("Введите допустимое отклонение температур реактора (+- x градусов, целое число): "))
-    for_react_temp = int(input("Введите температуру слоя форконтактора (целое число): "))
-    fr_tmp_lim = int(input("Введите допустимое отклонение температур форконтактора (+- x градусов, целое число): "))
-    prs = float(input("введите давление свд (н-р 20.10): "))
-    prs_lim = float(input("введите допустимое отклонение давления свд (н-р 0.05): "))
-    poll_time = int(input("Введите частоту опроса, сек (н-р 60, каждую минуту в телеграмм будет отправляться сообщение о сотоянии): "))
-except:
-    print("Введено неверное значение")
+#
+def run_setting():
+    bot = telebot.TeleBot(token)
+    @bot.message_handler(commands=['start'])
+    def start_message(message):
+        keyboard = telebot.types.ReplyKeyboardMarkup(True)
+        bot.send_message(message.chat.id, 'Привет!', reply_markup=keyboard)
+
+    @bot.message_handler(commands=['get_data'])
+    def get_data(message):
+        markup = telebot.types.InlineKeyboardMarkup()
+        markup.add(telebot.types.InlineKeyboardButton(text='Получить данные', callback_data=3))
+        bot.send_message(message.chat.id, text="Что вы хотите сделать?", reply_markup=markup)
+
+    @bot.callback_query_handler(func=lambda call: True)
+    def query_handler(call):
+        answer = ''
+        if call.data == '3':
+            answer = '...Тут будут данные...'
+            bot.send_message(call.message.chat.id, answer)
+
+    bot.polling()
+###################################################
+while True:
+    try:
+        react_temp = int(input("Введите температуру слоя реактора (целое число): "))
+        r_tmp_lim = int(input("Введите допустимое отклонение температур реактора (+- x градусов, целое число): "))
+        for_react_temp = int(input("Введите температуру слоя форконтактора (целое число): "))
+        fr_tmp_lim = int(input("Введите допустимое отклонение температур форконтактора (+- x градусов, целое число): "))
+        prs = float(input("введите давление свд (н-р 20.10): "))
+        prs_lim = float(input("введите допустимое отклонение давления свд (н-р 0.05): "))
+        poll_time = int(input("Введите частоту опроса, сек (н-р 60, каждые 60 сек. в телеграмм будет отправляться сообщение): "))
+    except:
+        print("!!!\nВведено некорректное значение\n!!!")
+        continue
+    if (react_temp and r_tmp_lim and for_react_temp and fr_tmp_lim and prs and prs_lim and poll_time) != None:
+        break
+    else:
+        continue
 ###################################################
 def send_telegram(text: str):
     token = "1203397890:AAFupM7Z1QXBuTOdDI2lwgpPwmYYAgX0p4o"
     url = "https://api.telegram.org/bot"
-    channel_id = "@R8Plant"
+    channel_id = ""
     url += token
     method = url + "/sendMessage"
 
