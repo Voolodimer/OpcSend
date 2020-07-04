@@ -5,6 +5,8 @@ import requests
 import telebot
 import threading
 
+import pywintypes
+pywintypes.datetime = pywintypes.TimeType
 token = "1203397890:AAF3Z53lbtmCWkXlsxJl4fXRj6Dtcv6TEc0"
 ###################################################
 #
@@ -13,20 +15,31 @@ def run_setting():
     @bot.message_handler(commands=['start'])
     def start_message(message):
         keyboard = telebot.types.ReplyKeyboardMarkup(True)
-        bot.send_message(message.chat.id, 'Привет!', reply_markup=keyboard)
-
-    @bot.message_handler(commands=['get_data'])
-    def get_data(message):
+        #bot.send_message(message.chat.id, 'Привет!', reply_markup=keyboard)
         markup = telebot.types.InlineKeyboardMarkup()
-        markup.add(telebot.types.InlineKeyboardButton(text='Получить данные', callback_data=3))
+        markup.add(telebot.types.InlineKeyboardButton(text='Получить параметры реактора Р-8', callback_data=3))
         bot.send_message(message.chat.id, text="Что вы хотите сделать?", reply_markup=markup)
+
+    #@bot.message_handler(commands=['get_data'])
+    #def get_data(message):
+    #    markup = telebot.types.InlineKeyboardMarkup()
+    #    markup.add(telebot.types.InlineKeyboardButton(text='Получить данные', callback_data=3))
+    #    bot.send_message(message.chat.id, text="Что вы хотите сделать?", reply_markup=markup)
 
     @bot.callback_query_handler(func=lambda call: True)
     def query_handler(call):
         answer = ''
         if call.data == '3':
-            answer = '...Тут будут данные...'
-            bot.send_message(call.message.chat.id, answer)
+            opc1 = OpenOPC.client()
+            opc1.connect("Owen.OPCNet.DA.1")
+            #tag1 = opc1.list("COM4.TRM_202(adr=104)T_слой_Ср_р-ра.Оперативные параметры")[3]
+            answer = opc1.read(tagsValue, update=1, include_error=True)
+            print(answer)
+            opc1.close()
+            i = 0
+            while i < len(tagsValue):
+                bot.send_message(call.message.chat.id, "{0:_^20} {1:>10.2f}".format(tg_lst[tagsValue[i]] ,answer[i][1]))
+                i += 1
 
     bot.polling()
 ###################################################
@@ -48,7 +61,7 @@ while True:
         continue
 ###################################################
 def send_telegram(text: str):
-    token = "1203397890:AAFupM7Z1QXBuTOdDI2lwgpPwmYYAgX0p4o"
+    token = "1203397890:AAF3Z53lbtmCWkXlsxJl4fXRj6Dtcv6TEc0"
     url = "https://api.telegram.org/bot"
     channel_id = "@R8Plant"
     url += token
@@ -61,33 +74,50 @@ def send_telegram(text: str):
     #Print status code - 200 OK
     #print(r.status_code)
     if r.status_code != 200:
-        raise Exception("post_text error")
+        print("Ошибка отправки сообщения в тг")
+        #raise Exception("post_text error")
 ###################################################
 
-def append_val(tagsValue):
-    try:
-        # Тр-ра Верх
-        tagsValue.append(opc.list("COM4.TRM_202(adr=104)T_слой_Ср_р-ра.Оперативные параметры")[3])
-        # Тр-ра Сер
-        tagsValue.append(opc.list("COM4.TRM_202(adr=112)T_слой_Пр_р-ра.Оперативные параметры")[2])
-        # Тр-ра Низ
-        tagsValue.append(opc.list("COM4.TRM_202(adr=104)T_слой_Ср_р-ра.Оперативные параметры")[2])
-        # Тфр сл
-        tagsValue.append(opc.list("COM4.TRM_202(adr=166)Т_слоя_Ф-К; Т_стенки_Ф-К_ПАЗ.Оперативные параметры")[3])
-
-        # Тр-ра Р_свд
-        tagsValue.append(opc.list("COM4.TRM_202(adr=136)Т_Лев_р-ра_ПАЗ_стенка; P_СВД.Оперативные параметры")[0])
-        # Тр-ра Р_прод
-        tagsValue.append(opc.list("COM4.TRM_202(adr=160)Расход_отдувки.Оперативные параметры")[3])
-    except:
-        print("Не добавить тег")
-    return (tagsValue)
+# def append_val(tagsValue):
+#     try:
+#         # Тр-ра Верх
+#         tagsValue.append(opc.list("COM4.TRM_202(adr=104)T_слой_Ср_р-ра.Оперативные параметры")[3])
+#         # Тр-ра Сер
+#         tagsValue.append(opc.list("COM4.TRM_202(adr=112)T_слой_Пр_р-ра.Оперативные параметры")[2])
+#         # Тр-ра Низ
+#         tagsValue.append(opc.list("COM4.TRM_202(adr=104)T_слой_Ср_р-ра.Оперативные параметры")[2])
+#         # Тфр сл
+#         tagsValue.append(opc.list("COM4.TRM_202(adr=166)Т_слоя_Ф-К; Т_стенки_Ф-К_ПАЗ.Оперативные параметры")[3])
+#
+#         # Тр-ра Р_свд
+#         tagsValue.append(opc.list("COM4.TRM_202(adr=136)Т_Лев_р-ра_ПАЗ_стенка; P_СВД.Оперативные параметры")[0])
+#         # Тр-ра Р_прод
+#         tagsValue.append(opc.list("COM4.TRM_202(adr=160)Расход_отдувки.Оперативные параметры")[3])
+#     except:
+#         print("Не добавить тег")
+#     return (tagsValue)
 
 ###################################################
 
 def send_mess():
     while True:
+        opc = OpenOPC.client()
+        servers = opc.servers()
+        i = 0
         print("-----------------------------------------------------------------------------------------")
+        for serv in servers:
+            print(str(i) + " " + serv)
+            i += 1
+        for srv in servers:
+            if (srv == "Owen.OPCNet.DA.1"):
+                try:
+                    opc.connect(srv)
+                    print("-----------------------------------------------------------------------------------------")
+                    print("Удачное подключение к " + srv)
+                    print("-----------------------------------------------------------------------------------------")
+                except:
+                    print("не удалось подключиться к " + srv)
+                    print("-----------------------------------------------------------------------------------------")
         try:
             ############################################################
             # Проверка температур слоя реактора
@@ -137,35 +167,43 @@ def send_mess():
                 i += 1
 
         except:
+            raise
             print("error read item")
+        opc.close()
         time.sleep(poll_time)
 
 ###################################################
-opc = OpenOPC.client()
-servers = opc.servers()
+# Добавляем теги
+# tagsValue = [];
+#
+# opc = OpenOPC.client()
+# servers = opc.servers()
+# opc.connect(servers[0])
+# append_val(tagsValue)
+# opc.close()
+
+file = open(r"C:\Users\user\PycharmProjects\OpcSendPy36-32\tags.txt", "r")
+# Получаем словарь из txt-файла. Этот словать нужен для отправки сообщений телеграм
+tags = file.read()
+tagsValue = tags.split("\n")
+tg_lst = {}
+for el in tagsValue:
+    el = el.split(",")
+    tg_lst[el[0]] = el[1]
+# print(tagsValue)
+# Отрезаем лишнее
+# значение после запятой. Получаем теги которые можно считать
 i = 0
-print("-----------------------------------------------------------------------------------------")
-for serv in servers:
-    print(str(i) + " " + serv)
+for el in tagsValue:
+    tagsValue[i] = el.split(",")[0]
     i += 1
-print("-----------------------------------------------------------------------------------------")
-num_serv = int(input("Введите номер сервера к которому нужно подключиться: "))
-try:
-    opc.connect(servers[num_serv])
-    print("-----------------------------------------------------------------------------------------")
-    print("Удачное подключение к " + servers[num_serv])
-except:
-    print("не удалось подключиться к " + servers[num_serv])
-#--------------------------------------------------------------------------------------------------------#
-tagsValue = [];
-append_val(tagsValue)
+# print(tagsValue)
+file.close()
 
-send_mess()
-#thrd_send_mess = threading.Thread(target=send_mess)
-#thrd_send_mess.start()
+#send_mess()
+thrd_send_mess = threading.Thread(target=send_mess)
+thrd_send_mess.start()
 
-#thrd_run_setting = threading.Thread(target=run_setting)
-#thrd_run_setting.start()
+thrd_run_setting = threading.Thread(target=run_setting)
+thrd_run_setting.start()
 
-#opc.close()
-#---------------------------#
