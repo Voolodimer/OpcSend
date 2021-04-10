@@ -1,0 +1,20 @@
+Сервер,InSAT.Multi-ProtocolMasterOPCServer.DA,server
+Температура стенки 4,SIEMENSPLC.siemensplc.temperatureActualA0,reactor_wall
+Температура стенки 1,SIEMENSPLC.siemensplc.temperatureActualA3,reactor_wall
+Температура стенки 3,SIEMENSPLC.siemensplc.temperatureActualA1,reactor_wall
+Температура стенки 2,SIEMENSPLC.siemensplc.temperatureActualA2,reactor_wall
+Слой р-ра верх,SIEMENSPLC.siemensplc.temperatureActualA4,reactor_inside
+Слой р-ра середина (паз),SIEMENSPLC.siemensplc.temperatureActualA5,reactor_inside
+Слой р-ра низ,SIEMENSPLC.siemensplc.temperatureActualA6,reactor_inside
+Реактор ПАЗ стенка,SIEMENSPLC.siemensplc.temperatureActualA7,reactor_wall
+Давление H2 (видимо до системы),SIEMENSPLC.siemensplc.pressureBarA0,pressure_street
+Давление N2 (видимо аварийка),SIEMENSPLC.siemensplc.pressureBarA1,pressure_avar
+ЛСЕ,SIEMENSPLC.siemensplc.pressureBarA2,pressure_raw
+ПСЕ,SIEMENSPLC.siemensplc.pressureBarA3,pressure_raw
+СВД,SIEMENSPLC.siemensplc.pressureBarA4,pressure
+Продуктовая,SIEMENSPLC.siemensplc.pressureBarA5,pressure_prod
+ГФК стенка,SIEMENSPLC.siemensplc.temperatureActualB0,gfk
+ГФК слой,SIEMENSPLC.siemensplc.temperatureActualB3,gfk_wall
+ФК слой,SIEMENSPLC.siemensplc.temperatureActualB1,gsfk
+ФК стенка,SIEMENSPLC.siemensplc.temperatureActualB2,gsfk_wall
+Mass View,SIEMENSPLC.siemensplc.FlowRateActualA6,mass_flow

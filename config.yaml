@@ -1,0 +1,30 @@
+poll_frequency_seconds: 60
+thresholds:
+  - name: "Температура слоя реактора"
+    base_value: 130
+    deviation: 5
+    opc_data_index: 1
+    lower_message_template: "Температура слоя реактора перегрета до {0:.2f} C"
+    upper_message_template: "Температура слоя реактора хладилась до {0:.2f} C"
+    type: "reactor"
+  - name: "Температура слоя ГСФК"
+    base_value: 190
+    deviation: 5
+    opc_data_index: 3
+    lower_message_template: "Слой ФР перегрет до {0:.2f} C"
+    upper_message_template: "Слой ФР охладился до {0:.2f} С"
+    type: "GSFK"
+  - name: "Давление СВД"
+    base_value: 20.00
+    deviation: 0.05
+    opc_data_index: 4
+    lower_message_template: "Давление поднялось до {0:.2f} ати"
+    upper_message_template: "Давление опустилось до {0:.2f} ати"
+    type: "Pressure"
+  - name: "Температура слоя ГФК"
+    base_value: 300
+    deviation: 5
+    opc_data_index: 2
+    lower_message_template: "Слой ФР перегрет до {0:.2f} C"
+    upper_message_template: "Слой ФР охладился до {0:.2f} С"
+    type: "GFK"

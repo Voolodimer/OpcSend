@@ -1,0 +1,4 @@
+OpenOPC-Python3x
+pyTelegramBotApi
+pywin32
+requests
